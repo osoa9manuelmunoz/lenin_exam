@@ -40,6 +40,8 @@ public class SGD {
     public static void enviarBroadcast(String mensaje) {
         usuariosActivos.forEach((usuario, hilo) -> {
             System.out.println("Enviando mensaje a " + usuario.getName() + ": " + mensaje);
+            // Aquí puedes implementar lógica de sockets o alguna otra forma de comunicación
+            // entre el servidor y los clientes para que realmente reciban el mensaje.
         });
     }
 
