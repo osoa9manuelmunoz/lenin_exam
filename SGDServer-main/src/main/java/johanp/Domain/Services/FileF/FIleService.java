@@ -11,6 +11,7 @@ import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 
 import johanp.Domain.Models.File;
+import johanp.sgd.SGD;  // Para usar el método enviarBroadcast
 
 public class FIleService extends UnicastRemoteObject implements IFileService {
 
@@ -48,8 +49,9 @@ public class FIleService extends UnicastRemoteObject implements IFileService {
             byte[] fileData = file.getContent();
             fileOutput.write(fileData);
 
-            // Guardar permisos en la base de datos
-            asignarPermisos(file, userName, 2);  // Asignamos permiso de escritura como ejemplo
+            // Notificar a los usuarios que un archivo ha sido subido
+            String mensaje = "El archivo " + file.getName() + " ha sido subido por " + userName;
+            SGD.enviarBroadcast(mensaje);  // Broadcast a todos los usuarios
 
             return "Archivo añadido correctamente: " + file.getName();
         } catch (IOException e) {
@@ -57,21 +59,40 @@ public class FIleService extends UnicastRemoteObject implements IFileService {
             return "Error añadiendo el archivo: " + e.getMessage();
         }
     }
-    
-    @Override
-    public void asignarPermisos(File file, String userName, int permiso) {
-        // Aquí implementas la lógica para guardar los permisos en la base de datos.
-        // Permiso 1 = Lector, Permiso 2 = Escritor.
-        System.out.println("Permisos asignados para el archivo: " + file.getName() + " al usuario: " + userName);
-    }
 
-    @Override
-    public String deleteFile(String fileName) throws RemoteException {
+    public String deleteFile(String fileName, String userName) throws RemoteException {
         java.io.File fileToDelete = new java.io.File(FILE_DIRECTORY + fileName);
         if (fileToDelete.delete()) {
+            // Notificar a los usuarios que un archivo ha sido eliminado
+            String mensaje = "El archivo " + fileName + " ha sido eliminado por " + userName;
+            SGD.enviarBroadcast(mensaje);  // Broadcast a todos los usuarios
+
             return "Archivo eliminado correctamente: " + fileName;
         } else {
             return "Error al eliminar el archivo: " + fileName;
+        }
+    }
+
+    // Método para modificar archivo (agregado como ejemplo)
+    public String modifyFile(File file, String userName) throws RemoteException {
+        String filePath = FILE_DIRECTORY + userName + "/" + file.getName();
+        java.io.File fileToModify = new java.io.File(filePath);
+
+        if (fileToModify.exists()) {
+            try (FileOutputStream fileOutput = new FileOutputStream(fileToModify)) {
+                fileOutput.write(file.getContent());
+
+                // Notificar a los usuarios que un archivo ha sido modificado
+                String mensaje = "El archivo " + file.getName() + " ha sido modificado por " + userName;
+                SGD.enviarBroadcast(mensaje);  // Broadcast a todos los usuarios
+
+                return "Archivo modificado correctamente: " + file.getName();
+            } catch (IOException e) {
+                e.printStackTrace();
+                return "Error al modificar el archivo: " + e.getMessage();
+            }
+        } else {
+            return "El archivo no existe: " + file.getName();
         }
     }
 
@@ -79,5 +100,12 @@ public class FIleService extends UnicastRemoteObject implements IFileService {
     public boolean searchFile(String fileName) throws RemoteException {
         java.io.File file = new java.io.File(FILE_DIRECTORY + fileName);
         return file.exists();
+    }
+
+    @Override
+    public void asignarPermisos(File file, String userName, int permiso) {
+        // Aquí implementas la lógica para guardar los permisos en la base de datos.
+        // Permiso 1 = Lector, Permiso 2 = Escritor.
+        System.out.println("Permisos asignados para el archivo: " + file.getName() + " al usuario: " + userName);
     }
 }
