@@ -15,11 +15,13 @@ import johanp.Domain.Models.File;
 public interface IFileService extends Remote{
     byte[] getFile(String fileName) throws RemoteException;
     String addFile(File file, String userName) throws RemoteException;
-    String deleteFile(String fileName) throws RemoteException;
+    String deleteFile(String fileName, String userName) throws RemoteException;  // Agregamos userName aquí
     boolean searchFile(String fileName) throws RemoteException;
     // Permisos de archivos
     void asignarPermisos(File file, String userName, int permiso) throws RemoteException;
+    String modifyFile(File file, String userName) throws RemoteException;  // Método para modificar archivos
 }
+
 
 
 
