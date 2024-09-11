@@ -47,7 +47,7 @@ public class SGD {
         }
     }
 
-    // Método para iniciar el servidor de sockets para el broadcast
+    // Método para iniciar el servidor de sockets para el broadcast utilizelo para ver aquellas notifiaciones
     public static void iniciarServidorBroadcast() {
         new Thread(() -> {
             try (ServerSocket serverSocket = new ServerSocket(PUERTO_SOCKET)) {
